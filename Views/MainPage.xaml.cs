@@ -18,7 +18,7 @@ namespace PM2_ExamenFinal.Views
         {
             try
             {
-                await Navigation.PushAsync(new AddNotePage());
+                await Navigation.PushAsync(new AddNotePage(null));
             }catch(Exception ex)
             {
                 await DisplayAlert("Error","Error: "+ex.Message,"Cerrar");
@@ -55,24 +55,29 @@ namespace PM2_ExamenFinal.Views
             {
                 if (selectedNota != null)
                 {
-                    await DisplayAlert("Informacion",selectedNota.Descripcion,"Cerrar");
-                    //bool resp;
-                    /*if (int.Parse(selectedCita.Calificacion) > 0)
-                    {
-                        resp = await DisplayAlert("Confirmar", "�Desea volver a calificar esta cita?", "S�", "No");
-                    }
-                    else
-                    {
-                        resp = await DisplayAlert("Confirmar", "�Desea calificar esta cita?", "S�", "No");
-                    }
+                    string? resp = await DisplayActionSheet("Que desea hacer", "Cancelar", null, "Modificar nota", "Eliminar nota");
 
-                    if (resp)
+                    if (resp == "Modificar nota")
                     {
-                        Calificar(selectedCita);
+                        Modificar(selectedNota);
                     }
-                    */
+                    else if (resp == "Utilizar c�mara")
+                    {
+                        Eliminar(selectedNota);
+                    }
+                    Modificar(selectedNota);
                 }
             }
+        }
+
+        private async void Modificar(Nota notaSeleccionada)
+        {
+            await Navigation.PushAsync(new AddNotePage(notaSeleccionada));
+        }
+
+        private async void Eliminar(Nota notaSeleccionada)
+        {
+            await _viewModel.DeleteData(notaSeleccionada.Id_nota);
         }
     }
 }

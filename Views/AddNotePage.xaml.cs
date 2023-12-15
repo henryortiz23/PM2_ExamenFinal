@@ -21,42 +21,43 @@ public partial class AddNotePage : ContentPage
     IAudioSource audioSource = null;
     bool isPlaying;
     bool isRecorder;
-    public AddNotePage()
+    public AddNotePage(Nota datosNota)
     {
         InitializeComponent();
+        notaActual = datosNota;
+        cargarDatos();
     }
 
-    private void OnCerrarClicked(object sender, EventArgs e)
+    private async void cargarDatos()
     {
-        //
+        if (notaActual != null)
+        {
+            entDescripcion.Text = notaActual.Descripcion;
+            await Task.Run(() => obtenerFoto());
+            await Task.Run(() => obtenerAudio());
+        }
     }
 
     private async void CrearActualizarClicked(object sender, EventArgs e)
     {
-        /*
-        if (!entNombre.Text.Trim().Equals(usuarioActual.Nombre) || !entTelefono.Text.Trim().Equals(usuarioActual.Telefono) || image != null && !updating)
+        if ("".Equals(entDescripcion.Text))
+        {
+            await DisplayAlert("Campos vacios","El campo de la descripcion no puede quedar vacio","Cerrar");
+        }
+        else
         {
             contActualizar.WidthRequest = 300;
             updating = true;
-            entTelefono.IsEnabled = false;
-            entNombre.IsEnabled = false;
-
-            await Task.Run(() => Updating());
+            await Task.Run(() => CreatedUpdating());
+            contActualizar.WidthRequest = 0;
+            updating = false;
+            await Navigation.PopAsync();
         }
-        */
-        contActualizar.WidthRequest = 300;
-        updating = true;
-        await Task.Run(() => CreatedUpdating());
-        contActualizar.WidthRequest = 0;
-        updating = false;
-        await Navigation.PopAsync();
     }
 
     private async Task CreatedUpdating()
     {
         ViewModelNotas viewModel = new ViewModelNotas("", false);
-
-
         try
         {
             string nFecha = datFecha.Date.ToShortDateString();
@@ -75,6 +76,9 @@ public partial class AddNotePage : ContentPage
             else
             {
                 newNota.Id_nota = notaActual.Id_nota;
+                newNota.Photo_Record = image != null ? ImageToBase64() : notaActual.Photo_Record;
+                newNota.Audio_Record = audioSource != null ? AudioToBase64() : notaActual.Audio_Record;
+
                 await viewModel.UpdateData(newNota);
 
             }
@@ -168,6 +172,23 @@ public partial class AddNotePage : ContentPage
         }
     }
 
+    private async Task obtenerAudio()
+    {
+        string base64String = notaActual.Audio_Record;
+        if (base64String != null && !string.IsNullOrEmpty(base64String))
+        {
+            byte[] bytes = System.Convert.FromBase64String(base64String);
+            var stream = new MemoryStream(bytes);
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+
+                audioPlayer = this.audioManager.CreateAsyncPlayer(stream);
+
+            });
+        }
+    }
+
 
 
     private async void StartAudio(object sender, EventArgs e)
@@ -209,6 +230,20 @@ public partial class AddNotePage : ContentPage
             await audioPlayer.PlayAsync(CancellationToken.None);
             isPlaying = false;
             btnPlay.ImageSource = "play.svg";
+        }
+        else
+        {
+            if (notaActual != null)
+            {
+                if ("".Equals(notaActual.Audio_Record))
+                {
+                    btnPlay.ImageSource = "stop.svg";
+                    isPlaying = true;
+                    await audioPlayer.PlayAsync(CancellationToken.None);
+                    isPlaying = false;
+                    btnPlay.ImageSource = "play.svg";
+                }
+            }
         }
     }
 
