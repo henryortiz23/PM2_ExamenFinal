@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PM2_ExamenFinal.Views.MainPage"
+             xmlns:conver="clr-namespace:PM2_ExamenFinal.Controllers"
+             Title="Notas">
+
+    <ContentPage.Resources>
+        <conver:ConvertImage x:Key="Base64Array" />
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Crear nota" IconImageSource="add_note.svg" Clicked="AddNote"/>
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Spacing="5" Padding="5" x:Name="contTodoDatos">
+
+                <CollectionView x:Name="list"
+                        SelectionMode="Single" 
+                        ItemsSource="{Binding DataItems}"
+                            SelectionChanged="list_SelectionChanged">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Frame Padding="5" Margin="5">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="Frame_Tapped"/>
+                                    </Frame.GestureRecognizers>
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Frame WidthRequest="100" HeightRequest="100" CornerRadius="99" Style="{StaticResource FrameEntry}" Padding="5" Grid.Column="0">
+                                            <Frame WidthRequest="90" HeightRequest="90" CornerRadius="99" BorderColor="Transparent">
+                                                <Image Aspect="AspectFill" HeightRequest="90" WidthRequest="90" Source="{Binding Photo_Record, Converter={StaticResource Base64Array}}" />
+                                            </Frame>
+                                        </Frame>
+
+                                        <StackLayout Grid.Column="1" Margin="10,0,10,0" VerticalOptions="Center" Spacing="20">
+                                            <Label Text="{Binding Descripcion}" Style="{StaticResource LabelTitle}" HorizontalOptions="StartAndExpand" />
+
+                                            <HorizontalStackLayout>
+                                                <Image Source="date.svg" Style="{StaticResource ImageIcon}"/>
+                                                <Label Text="{Binding Fecha}" Style="{StaticResource LabelSubTitle}"/>
+                                            </HorizontalStackLayout>
+
+                                        </StackLayout>
+                                    </Grid>
+                                </Frame>
+
+
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>
